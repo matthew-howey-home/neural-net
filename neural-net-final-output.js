@@ -1,3 +1,5 @@
+// Neural Net Output
+
 function softmax(logits) {
     const expValues = logits.map(logit => Math.exp(logit));
     const sumExpValues = expValues.reduce((sum, expVal) => sum + expVal, 0);
@@ -24,12 +26,15 @@ function crossEntropyLoss(predictions, targets) {
     for (let i = 0; i < predictions.length; i++) {
         const target = targets[i];
         const prediction = predictions[i];
-        loss += target * Math.log(prediction + 1e-15); // Avoid log(0) by adding 1e-15
+        loss += target * Math.log(prediction);
     }
 
     return -loss;
 }
 
+/* Takes in an array of predictions, and an array of targets
+ Predictions and targets are also arrays
+*/
 function crossEntropyLossBatch(batchPredictions, batchTargets) {
     let totalLoss = 0;
     for (let i = 0; i < batchPredictions.length; i++) {
@@ -40,21 +45,22 @@ function crossEntropyLossBatch(batchPredictions, batchTargets) {
     return totalLoss / batchPredictions.length; // Average loss over the batch
 }
 
-// Example usage
-const batchLogits = [
-    [2.0, 1.0, 0.1, 0.5],  // Logits for flower 1
-    [0.5, 1.5, 1.0, 0.7],  // Logits for flower 2
-    // Add more flowers to the batch...
-];
 
-const batchTargets = [
-    [1, 0, 0, 0],  // One-hot encoded true label for flower 1
-    [0, 1, 0, 0],  // One-hot encoded true label for flower 2
-    // Add more labels for the rest of the batch...
-];
 
-const batchPredictions = softmaxBatch(batchLogits);
-const loss = crossEntropyLossBatch(batchPredictions, batchTargets);
 
-console.log("Batch Predictions:", batchPredictions);
-console.log("Loss:", loss);
+/* returns Jacobian matrix based on backpropagation algorithm of batchPredictions, batchTargets
+* This is backpropagation through crossentropy loss and softmax functions combined
+*/
+function finalOutputBackPropBatch(batchPredictions, batchTargets) {
+
+}
+
+module.exports = { 
+    forwardPass: {
+        crossEntropyLossBatch,
+        softmaxBatch,
+    },
+    backProp: {
+         finalOutputBackPropBatch,
+    }
+}
