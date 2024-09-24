@@ -1,4 +1,4 @@
-const { forwardPass } = require('./neural-net-final-output');
+const { forwardPass, backProp } = require('./neural-net-final-output');
 
 // Example usage
 const batchLogits = [
@@ -20,3 +20,17 @@ console.log('Batch Logits:', batchLogits);
 console.log("Batch Predictions:", batchPredictions);
 console.log('Batch Targets', batchTargets);
 console.log("Loss:", loss);
+
+const gradients = backProp.finalOutputBackPropBatch(batchPredictions, batchTargets);
+const gradientsByLearningStep = backProp.gradientsByLearningRate(gradients, 0.1);
+const transformedLogits = backProp.logitsTransformedByLearningRate(batchLogits, gradientsByLearningStep);
+
+console.log("gradients:", gradients);
+console.log("Gradients Transformed by Learning Rate:", gradientsByLearningStep);
+console.log("Logits Transformed by Learning Rate:", transformedLogits);
+
+const revisedBatchPredictions = forwardPass.softmaxBatch(transformedLogits);
+const revisedLoss = forwardPass.crossEntropyLossBatch(revisedBatchPredictions, batchTargets);
+
+console.log("Revised Batch Predictions:",  revisedBatchPredictions);
+console.log("Revised Loss:", revisedLoss);

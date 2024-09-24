@@ -45,14 +45,60 @@ function crossEntropyLossBatch(batchPredictions, batchTargets) {
     return totalLoss / batchPredictions.length; // Average loss over the batch
 }
 
+/* backpropagation for one sample of predictions and targets
+*/
+function finalOutputBackProp(predictions, targets) {
+    const response = [];
+    for (let i = 0; i < predictions.length; i++) {
+        response.push(predictions[i] - targets[i]);
+    }
+    return response
+}
 
 
-
-/* returns Jacobian matrix based on backpropagation algorithm of batchPredictions, batchTargets
+/* returns array based on backpropagation algorithm of batchPredictions, batchTargets
 * This is backpropagation through crossentropy loss and softmax functions combined
 */
 function finalOutputBackPropBatch(batchPredictions, batchTargets) {
+    const numberOfSamples = batchPredictions.length;
+    const numberOfClasses = batchPredictions[0].length;
 
+    const batchGradients = [];
+    for (let sampleIndex = 0; sampleIndex < numberOfSamples; sampleIndex++) {
+        const gradient = finalOutputBackProp(batchPredictions[sampleIndex], batchTargets[sampleIndex]);
+        batchGradients.push(gradient);
+    }
+
+    // final gradient is an average of the gradients in each class
+    const finalGradients = [];
+    for (let classIndex = 0; classIndex < numberOfClasses; classIndex++) {
+        let sumOfClassValues = 0;
+        for (let sampleIndex = 0; sampleIndex < numberOfSamples; sampleIndex++) {
+            const gradient = batchGradients[sampleIndex];
+            sumOfClassValues += gradient[classIndex];
+        }
+        finalGradients.push(sumOfClassValues / numberOfSamples);
+    }
+
+    return finalGradients
+}
+
+// takes in array of gradients and multiples each element by the learningRate
+function gradientsByLearningRate(gradients, learningRate) {
+    return gradients.map((gradient) => gradient * learningRate);
+}
+
+/* takes in array of gradients transformed by learning rate
+and an array logits, and modifies the logits */
+function logitsTransformedByLearningRate(logits, transformedGradients) {
+    const transformedLogits = [];
+    for (let logitIndex = 0; logitIndex < logits.length; logitIndex++) {
+        const logit = logits[logitIndex];
+        transformedLogits.push(
+            logit.map((logitClass, classIndex) => logitClass - transformedGradients[classIndex])
+        );
+    }
+    return transformedLogits;
 }
 
 module.exports = { 
@@ -61,6 +107,8 @@ module.exports = {
         softmaxBatch,
     },
     backProp: {
-         finalOutputBackPropBatch,
+        finalOutputBackPropBatch,
+        gradientsByLearningRate,
+        logitsTransformedByLearningRate,
     }
 }
