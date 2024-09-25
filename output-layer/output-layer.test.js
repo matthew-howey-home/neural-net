@@ -4,12 +4,14 @@ const { forwardPass, backPropagation } = require('.');
 const batchOfLogits = [
     [2.0, 1.0, 0.1, 0.5],  // Logits for flower 1
     [0.5, 1.5, 1.0, 0.7],  // Logits for flower 2
+    [9.5, 2.3, 0.1, 0.9],  // Logits for flower 3
     // Add more flowers to the batch...
 ];
 
 const batchOfTargets = [
     [0, 1, 0, 0],  // One-hot encoded true label for flower 1
     [0, 0, 1, 0],  // One-hot encoded true label for flower 2
+    [1, 0, 0, 0],  // One-hot encoded true label for flower 3
     // Add more labels for the rest of the batch...
 ];
 
